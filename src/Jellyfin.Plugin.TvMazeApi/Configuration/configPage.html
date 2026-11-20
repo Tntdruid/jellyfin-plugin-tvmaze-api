@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="da">
+<html lang="en">
 <head>
     <meta charset="utf-8">
     <title>TVmaze API</title>
@@ -10,20 +10,20 @@
         <div class="content-primary">
             <form id="TvMazeApiConfigForm">
                 <div class="inputContainer">
-                    <input is="emby-input" type="number" id="MaxRequestsPerWindow" min="1" max="20" label="Maks. kald pr. vindue" />
-                    <div class="fieldDescription">TVmaze tillader mindst 20 kald pr. 10 sekunder pr. IP.</div>
+                    <input is="emby-input" type="number" id="MaxRequestsPerWindow" min="1" max="20" label="Max calls per window" />
+                    <div class="fieldDescription">TVmaze allows at least 20 calls per 10 seconds per IP address.</div>
                 </div>
                 <div class="inputContainer">
-                    <input is="emby-input" type="number" id="WindowSeconds" min="10" label="Vindue (sekunder)" />
+                    <input is="emby-input" type="number" id="WindowSeconds" min="10" label="Window (seconds)" />
                 </div>
                 <div class="inputContainer">
-                    <input is="emby-input" type="number" id="CacheMinutes" min="0" label="Cache (minutter)" />
+                    <input is="emby-input" type="number" id="CacheMinutes" min="0" label="Cache (minutes)" />
                 </div>
                 <div class="inputContainer">
-                    <input is="emby-input" type="number" id="MaxRetries" min="0" max="10" label="Maks. genforsøg ved 429" />
+                    <input is="emby-input" type="number" id="MaxRetries" min="0" max="10" label="Max retries on 429" />
                 </div>
-                <div class="fieldDescription">Data fra <a href="https://www.tvmaze.com" target="_blank">TVmaze</a>, licenseret under CC BY-SA 4.0.</div>
-                <button is="emby-button" type="submit" class="raised button-submit block"><span>Gem</span></button>
+                <div class="fieldDescription">Data from <a href="https://www.tvmaze.com" target="_blank">TVmaze</a>, licensed under CC BY-SA 4.0.</div>
+                <button is="emby-button" type="submit" class="raised button-submit block"><span>Save</span></button>
             </form>
         </div>
     </div>

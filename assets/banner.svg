@@ -21,9 +21,9 @@
 
   <g font-family="Segoe UI, Inter, Helvetica, Arial, sans-serif">
     <text x="570" y="330" font-size="104" font-weight="700" fill="#F2F4FF">TVmaze <tspan fill="url(#jf)">API</tspan></text>
-    <text x="574" y="398" font-size="38" font-weight="400" fill="#B9C0E6">Metadata-plugin til Jellyfin</text>
+    <text x="574" y="398" font-size="38" font-weight="400" fill="#B9C0E6">Metadata plugin for Jellyfin</text>
     <g font-size="26" fill="#8E96C4">
-      <text x="574" y="470">⏱  Max 20 kald / 10 s  ·  429-backoff  ·  caching</text>
+      <text x="574" y="470">⏱  Max 20 calls / 10 s  ·  429-backoff  ·  caching</text>
     </g>
   </g>
 </svg>

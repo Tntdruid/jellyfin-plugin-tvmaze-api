@@ -23,7 +23,7 @@ public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
 
     public override Guid Id => Guid.Parse("6f2b3c1e-8a4d-4f7b-9c2e-1d5a7b9e3f40");
 
-    public override string Description => "Henter serie-, sæson- og episodemetadata fra TVmaze med indbygget rate limiting og caching.";
+    public override string Description => "Fetches series, season and episode metadata from TVmaze, with built-in rate limiting and caching.";
 
     public IEnumerable<PluginPageInfo> GetPages() =>
     [
