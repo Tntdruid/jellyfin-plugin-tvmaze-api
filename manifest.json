@@ -9,6 +9,14 @@
     "imageUrl": "https://raw.githubusercontent.com/Tntdruid/jellyfin-plugin-tvmaze-api/main/assets/banner.png",
     "versions": [
       {
+        "version": "1.1.0.0",
+        "changelog": "- Optional TVmaze account per Jellyfin user: episodes you finish or mark as played are marked as watched on TVmaze. Off by default; turn it on with the \"Mark watched episodes on TVmaze (requires TVmaze premium)\" checkbox.\n- \"Test login\" button on the settings page that checks the username and API key and shows your premium level.\n- Scheduled task \"Sync watched episodes to TVmaze\" that sends your existing watch history.\n- Episodes are sent in batches through the same rate limiter as everything else.",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/Tntdruid/jellyfin-plugin-tvmaze-api/releases/download/v1.1.0/tvmaze-api_1.1.0.0.zip",
+        "checksum": "e3c211f53e8d809978489a52ec6b5109",
+        "timestamp": "2026-11-20T10:15:23Z"
+      },
+      {
         "version": "1.0.1.0",
         "changelog": "- People now show a \"TVmaze Person ID\" field and a link to their TVmaze page.",
         "targetAbi": "12.2.0.0",
