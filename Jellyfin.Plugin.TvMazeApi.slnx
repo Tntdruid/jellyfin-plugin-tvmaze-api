@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Jellyfin.Plugin.TvMazeApi/Jellyfin.Plugin.TvMazeApi.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Jellyfin.Plugin.TvMazeApi.Tests/Jellyfin.Plugin.TvMazeApi.Tests.csproj" />
+  </Folder>
+</Solution>
