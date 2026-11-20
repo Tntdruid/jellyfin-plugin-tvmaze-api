@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.0.1
+
+- People now show a "TVmaze Person ID" field and a link to their TVmaze page.
+
 ## 1.0.0
 
 - Metadata providers for series, seasons and episodes from TVmaze, plus image providers for each.

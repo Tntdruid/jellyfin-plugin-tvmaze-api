@@ -39,6 +39,18 @@ public class TvMazeEpisodeExternalId : IExternalId
     public bool Supports(IHasProviderIds item) => item is Episode;
 }
 
+/// <summary>Shows the TVmaze person id (set from the series cast) on person pages.</summary>
+public class TvMazePersonExternalId : IExternalId
+{
+    public string ProviderName => "TVmaze";
+
+    public string Key => TvMazeHelpers.ProviderKey;
+
+    public ExternalIdMediaType? Type => ExternalIdMediaType.Person;
+
+    public bool Supports(IHasProviderIds item) => item is Person;
+}
+
 /// <summary>Links back to TVmaze (also satisfies the CC BY-SA attribution requirement).</summary>
 public class TvMazeExternalUrlProvider : IExternalUrlProvider
 {
@@ -56,6 +68,7 @@ public class TvMazeExternalUrlProvider : IExternalUrlProvider
             Series => "shows",
             Season => "seasons",
             Episode => "episodes",
+            Person => "people",
             _ => null,
         };
         if (kind is not null)
