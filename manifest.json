@@ -9,6 +9,14 @@
     "imageUrl": "https://raw.githubusercontent.com/Tntdruid/jellyfin-plugin-tvmaze-api/main/assets/banner.png",
     "versions": [
       {
+        "version": "1.0.1.0",
+        "changelog": "- People now show a \"TVmaze Person ID\" field and a link to their TVmaze page.",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/Tntdruid/jellyfin-plugin-tvmaze-api/releases/download/v1.0.1/tvmaze-api_1.0.1.0.zip",
+        "checksum": "e89270fe61828741893d2a48f9611a76",
+        "timestamp": "2026-11-20T10:07:39Z"
+      },
+      {
         "version": "1.0.0.0",
         "changelog": "- Metadata providers for series, seasons and episodes from TVmaze, plus image providers for each.\n- Rate limiter with a strict sliding window (20 calls/10 s), a global pause, and retries on HTTP 429/5xx.\n- In-memory cache (60 min) that lets concurrent identical requests share one call.\n- Settings page, external IDs and links back to TVmaze.\n- Installable from the plugin repository at `https://raw.githubusercontent.com/Tntdruid/jellyfin-plugin-tvmaze-api/main/manifest.json`.",
         "targetAbi": "12.2.0.0",
