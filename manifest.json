@@ -1,0 +1,12 @@
+[
+  {
+    "guid": "6f2b3c1e-8a4d-4f7b-9c2e-1d5a7b9e3f40",
+    "name": "TVmaze API",
+    "description": "Series, season and episode metadata from TVmaze, with built-in rate limiting and caching.",
+    "overview": "Gets titles, overviews, cast, images and external IDs from the TVmaze API. Never sends more than 20 calls per 10 seconds, pauses and retries on HTTP 429, and caches responses for 60 minutes.",
+    "owner": "Tntdruid",
+    "category": "Metadata",
+    "imageUrl": "https://raw.githubusercontent.com/Tntdruid/jellyfin-plugin-tvmaze-api/main/assets/banner.png",
+    "versions": []
+  }
+]

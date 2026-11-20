@@ -32,11 +32,26 @@ The plugin also makes few calls. Episodes are matched against the series' full e
 
 ## Installation
 
-1. Build: `dotnet publish src/Jellyfin.Plugin.TvMazeApi -c Release -o out`
-2. Copy `out/Jellyfin.Plugin.TvMazeApi.dll` to `<jellyfin-data>/plugins/TVmaze API_1.0.0.0/`
-3. Restart Jellyfin, then enable **TVmaze API** as a metadata and image provider in your library settings.
+Requires Jellyfin 12.2.
 
-Requires Jellyfin 12.2 / .NET 10.
+**From the plugin repository (recommended)**
+
+1. In Jellyfin go to **Dashboard → Plugins → Repositories** (or *Catalog → ⚙️*) and add:
+   ```
+   https://raw.githubusercontent.com/Tntdruid/jellyfin-plugin-tvmaze-api/main/manifest.json
+   ```
+2. Open the **Catalog**, find **TVmaze API** and install it.
+3. Restart Jellyfin.
+4. In each TV library's settings, enable **TVmaze API** as a metadata and image provider.
+
+**Manual**
+
+1. Download the latest `.zip` from [Releases](https://github.com/Tntdruid/jellyfin-plugin-tvmaze-api/releases).
+2. Unzip it into a folder named `TVmaze API_<version>` inside Jellyfin's `plugins` folder:
+   - Windows: `C:\ProgramData\Jellyfin\Server\plugins\`
+   - Linux: `/var/lib/jellyfin/plugins/`
+   - Docker: `/config/plugins/`
+3. Restart Jellyfin, then enable the provider as in step 4 above.
 
 ## Settings
 
@@ -52,6 +67,17 @@ Requires Jellyfin 12.2 / .NET 10.
 ```powershell
 dotnet test
 ```
+
+To release a new version, add a `## x.y.z` section to [CHANGELOG.md](CHANGELOG.md) and push a `vx.y.z` tag. The release workflow builds the zip, creates the GitHub release and adds the version to `manifest.json`.
+
+## More Jellyfin projects
+
+- [Episode Title Fixer](https://github.com/Tntdruid/jellyfin-plugin-episode-title-fixer): Jellyfin plugin that replaces placeholder episode titles like "Afsnit 11" with the original title.
+- [Auto Artist Playlists](https://github.com/Tntdruid/jellyfin-plugin-auto-artist-playlists): Jellyfin plugin that hearts songs you listen to and adds them to a private playlist per artist.
+- [TvFin](https://github.com/Tntdruid/TvFin): minimal Jellyfin player for Samsung Tizen TVs.
+- [tonefin](https://github.com/Tntdruid/tonefin): small Windows music player for Jellyfin that always reports playback to the server.
+- [Jellyfin Music Stats](https://github.com/Tntdruid/jellyfin-music-stats): Home Assistant add-on with music listening stats for Jellyfin.
+- [Jellyfin Video Stats](https://github.com/Tntdruid/jellyfin-video-stats): Home Assistant add-on with viewing stats for movies, series and YouTube videos in Jellyfin.
 
 ## License
 
