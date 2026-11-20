@@ -1,4 +1,5 @@
 using Jellyfin.Plugin.TvMazeApi.Api;
+using Jellyfin.Plugin.TvMazeApi.Scrobbling;
 using MediaBrowser.Controller;
 using MediaBrowser.Controller.Plugins;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,5 +16,7 @@ public class PluginServiceRegistrator : IPluginServiceRegistrator
             () => Plugin.Instance?.Configuration ?? new Configuration.PluginConfiguration(),
             TimeProvider.System,
             sp.GetRequiredService<ILogger<TvMazeClient>>()));
+        serviceCollection.AddSingleton<TvMazeScrobbler>();
+        serviceCollection.AddHostedService<ScrobbleService>();
     }
 }

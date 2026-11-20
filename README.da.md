@@ -14,7 +14,20 @@ Metadata-plugin til [Jellyfin](https://jellyfin.org), der henter serie-, sæson-
 - **Sæsoner:** navn, beskrivelse, datoer og plakat.
 - **Episoder:** titel, beskrivelse, sendedato, spilletid, rating og stillbillede. Specials (sæson 0) matches i sendefølge, og daglige shows kan matches på dato.
 - **Billeder:** plakater, bannere, baggrunde og logoer.
-- **Links** tilbage til TVmaze på hvert element.
+- **Links** tilbage til TVmaze på hvert element, også personer.
+- **Valgfrit: markér sete episoder på TVmaze.** Knyt en Jellyfin-bruger til en TVmaze-konto, så episoder, du ser færdig eller markerer som set, bliver markeret som set på din TVmaze-profil.
+
+## Markér sete episoder på TVmaze (valgfrit)
+
+Metadata kræver aldrig en konto. En konto bruges kun til at markere sete episoder på TVmaze, og det kræver TVmaze premium at skrive til TVmaze.
+
+1. Gå til **Dashboard → Plugins → TVmaze API**.
+2. Vælg Jellyfin-brugeren under **TVmaze account**, og udfyld dit TVmaze-brugernavn og din API-nøgle (den står på dit [TVmaze-dashboard](https://www.tvmaze.com/dashboard)).
+3. Klik på **Test login** for at tjekke login og dit premium-niveau.
+4. Sæt hak i **Mark watched episodes on TVmaze**, og klik på **Save**.
+5. Kør **Sync watched episodes to TVmaze** under **Dashboard → Planlagte opgaver** for at sende de episoder, du allerede har set.
+
+Hver Jellyfin-bruger har sin egen TVmaze-konto. Episoderne sendes samlet et par sekunder efter den sidste, så det er ét kald at markere en hel sæson som set. Fjerner du markeringen i Jellyfin, bliver den ikke fjernet på TVmaze.
 
 ## Sådan overholdes API-reglerne
 

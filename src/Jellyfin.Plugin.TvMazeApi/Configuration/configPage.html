@@ -5,10 +5,11 @@
     <title>TVmaze API</title>
 </head>
 <body>
-<div id="TvMazeApiConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button">
+<div id="TvMazeApiConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-checkbox,emby-select">
     <div data-role="content">
         <div class="content-primary">
             <form id="TvMazeApiConfigForm">
+                <h2 class="sectionTitle">Rate limit</h2>
                 <div class="inputContainer">
                     <input is="emby-input" type="number" id="MaxRequestsPerWindow" min="1" max="20" label="Max calls per window" />
                     <div class="fieldDescription">TVmaze allows at least 20 calls per 10 seconds per IP address.</div>
@@ -22,30 +23,125 @@
                 <div class="inputContainer">
                     <input is="emby-input" type="number" id="MaxRetries" min="0" max="10" label="Max retries on 429" />
                 </div>
-                <div class="fieldDescription">Data from <a href="https://www.tvmaze.com" target="_blank">TVmaze</a>, licensed under CC BY-SA 4.0.</div>
+
+                <h2 class="sectionTitle">TVmaze account</h2>
+                <div class="fieldDescription" style="margin-bottom:1em">
+                    Optional. Link a Jellyfin user to a TVmaze account to mark watched episodes on TVmaze.
+                    Metadata does not need an account. Your API key is on your
+                    <a href="https://www.tvmaze.com/dashboard" target="_blank" rel="noopener">TVmaze dashboard</a>.
+                </div>
+                <div class="selectContainer">
+                    <select is="emby-select" id="TvMazeUser" label="Jellyfin user"></select>
+                </div>
+                <div class="inputContainer">
+                    <input is="emby-input" type="text" id="TvMazeUsername" autocomplete="off" label="TVmaze username" />
+                </div>
+                <div class="inputContainer">
+                    <input is="emby-input" type="password" id="TvMazeApiKey" autocomplete="new-password" label="TVmaze API key" />
+                </div>
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label>
+                        <input is="emby-checkbox" type="checkbox" id="TvMazeScrobble" />
+                        <span>Mark watched episodes on TVmaze (requires TVmaze premium)</span>
+                    </label>
+                    <div class="fieldDescription checkboxFieldDescription">
+                        Episodes you finish or mark as played in Jellyfin are marked as watched on TVmaze.
+                        To send your existing history, run <b>Sync watched episodes to TVmaze</b> under Scheduled Tasks.
+                    </div>
+                </div>
+                <div style="margin-bottom:2em">
+                    <button is="emby-button" type="button" id="TvMazeTest" class="raised"><span>Test login</span></button>
+                    <span id="TvMazeTestResult" style="margin-left:1em"></span>
+                </div>
+
+                <div class="fieldDescription">Data from <a href="https://www.tvmaze.com" target="_blank" rel="noopener">TVmaze</a>, licensed under CC BY-SA 4.0.</div>
                 <button is="emby-button" type="submit" class="raised button-submit block"><span>Save</span></button>
             </form>
         </div>
     </div>
     <script type="text/javascript">
-        var pluginId = '6f2b3c1e-8a4d-4f7b-9c2e-1d5a7b9e3f40';
-        var fields = ['MaxRequestsPerWindow', 'WindowSeconds', 'CacheMinutes', 'MaxRetries'];
-        document.querySelector('#TvMazeApiConfigPage').addEventListener('pageshow', function () {
-            Dashboard.showLoadingMsg();
-            ApiClient.getPluginConfiguration(pluginId).then(function (config) {
-                fields.forEach(function (f) { document.getElementById(f).value = config[f]; });
-                Dashboard.hideLoadingMsg();
+        (function () {
+            var pluginId = '6f2b3c1e-8a4d-4f7b-9c2e-1d5a7b9e3f40';
+            var fields = ['MaxRequestsPerWindow', 'WindowSeconds', 'CacheMinutes', 'MaxRetries'];
+            var page = document.querySelector('#TvMazeApiConfigPage');
+            var userSelect = page.querySelector('#TvMazeUser');
+            var accounts = {};
+
+            function normalizeId(id) { return (id || '').replace(/-/g, '').toLowerCase(); }
+
+            var shownUserId = null;
+
+            function showAccount() {
+                shownUserId = userSelect.value;
+                var a = accounts[normalizeId(userSelect.value)] || {};
+                page.querySelector('#TvMazeUsername').value = a.Username || '';
+                page.querySelector('#TvMazeApiKey').value = a.ApiKey || '';
+                page.querySelector('#TvMazeScrobble').checked = !!a.ScrobbleEnabled;
+                page.querySelector('#TvMazeTestResult').textContent = '';
+            }
+
+            // Saves the fields for the user currently shown (before the dropdown switches).
+            function storeAccount() {
+                if (!shownUserId) { return; }
+                accounts[normalizeId(shownUserId)] = {
+                    UserId: shownUserId,
+                    Username: page.querySelector('#TvMazeUsername').value.trim(),
+                    ApiKey: page.querySelector('#TvMazeApiKey').value.trim(),
+                    ScrobbleEnabled: page.querySelector('#TvMazeScrobble').checked
+                };
+            }
+
+            userSelect.addEventListener('change', function () { storeAccount(); showAccount(); });
+
+            page.addEventListener('pageshow', function () {
+                Dashboard.showLoadingMsg();
+                Promise.all([ApiClient.getPluginConfiguration(pluginId), ApiClient.getUsers()]).then(function (r) {
+                    var config = r[0], users = r[1];
+                    fields.forEach(function (f) { page.querySelector('#' + f).value = config[f]; });
+                    accounts = {};
+                    (config.Users || []).forEach(function (a) { accounts[normalizeId(a.UserId)] = a; });
+                    userSelect.innerHTML = users.map(function (u) {
+                        return '<option value="' + u.Id + '">' + u.Name.replace(/</g, '&lt;') + '</option>';
+                    }).join('');
+                    showAccount();
+                    Dashboard.hideLoadingMsg();
+                });
             });
-        });
-        document.querySelector('#TvMazeApiConfigForm').addEventListener('submit', function (e) {
-            Dashboard.showLoadingMsg();
-            ApiClient.getPluginConfiguration(pluginId).then(function (config) {
-                fields.forEach(function (f) { config[f] = parseInt(document.getElementById(f).value, 10); });
-                ApiClient.updatePluginConfiguration(pluginId, config).then(Dashboard.processPluginConfigurationUpdateResult);
+
+            page.querySelector('#TvMazeTest').addEventListener('click', function () {
+                var result = page.querySelector('#TvMazeTestResult');
+                result.textContent = 'Testing…';
+                ApiClient.ajax({
+                    type: 'POST',
+                    url: ApiClient.getUrl('TvMazeApi/Validate'),
+                    data: JSON.stringify({
+                        Username: page.querySelector('#TvMazeUsername').value,
+                        ApiKey: page.querySelector('#TvMazeApiKey').value
+                    }),
+                    contentType: 'application/json',
+                    dataType: 'json'
+                }).then(function (r) {
+                    var levels = ['no premium', 'Bronze', 'Silver', 'Gold'];
+                    if (r.Error) { result.textContent = '⚠️ ' + r.Error; }
+                    else if (!r.Valid) { result.textContent = '❌ Wrong username or API key'; }
+                    else if (r.Premium > 0) { result.textContent = '✅ OK (premium: ' + levels[r.Premium] + ')'; }
+                    else { result.textContent = '⚠️ Login OK, but no premium. TVmaze may reject marking episodes.'; }
+                }, function () { result.textContent = '❌ Fill in username and API key'; });
             });
-            e.preventDefault();
-            return false;
-        });
+
+            page.querySelector('#TvMazeApiConfigForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+                storeAccount();
+                Dashboard.showLoadingMsg();
+                ApiClient.getPluginConfiguration(pluginId).then(function (config) {
+                    fields.forEach(function (f) { config[f] = parseInt(page.querySelector('#' + f).value, 10); });
+                    config.Users = Object.keys(accounts).map(function (k) { return accounts[k]; })
+                        .filter(function (a) { return a.Username || a.ApiKey || a.ScrobbleEnabled; });
+                    ApiClient.updatePluginConfiguration(pluginId, config).then(Dashboard.processPluginConfigurationUpdateResult);
+                });
+                return false;
+            });
+        })();
     </script>
 </div>
 </body>

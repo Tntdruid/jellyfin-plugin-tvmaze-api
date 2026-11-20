@@ -181,6 +181,32 @@ public sealed partial class TvMazeClient : IDisposable
 
     private async Task<string?> FetchAsync(string path, CancellationToken ct)
     {
+        var result = await SendAsync(() => new HttpRequestMessage(HttpMethod.Get, path), path, ct).ConfigureAwait(false);
+        if (result.Status == HttpStatusCode.NotFound)
+        {
+            return null;
+        }
+
+        if (result.Status is HttpStatusCode.MovedPermanently or HttpStatusCode.Found
+            or HttpStatusCode.TemporaryRedirect or HttpStatusCode.PermanentRedirect)
+        {
+            return result.Location?.ToString() ?? string.Empty;
+        }
+
+        if ((int)result.Status is < 200 or > 299)
+        {
+            throw new HttpRequestException($"TVmaze returned {(int)result.Status} for {path}", null, result.Status);
+        }
+
+        return result.Body;
+    }
+
+    /// <summary>
+    /// Sends one request through the rate limiter. HTTP 429 pauses every request and retries;
+    /// 5xx and network errors are retried with backoff. Other statuses are returned to the caller.
+    /// </summary>
+    private async Task<SendResult> SendAsync(Func<HttpRequestMessage> createRequest, string label, CancellationToken ct)
+    {
         var config = _config();
         int maxRetries = Math.Max(0, config.MaxRetries);
         var window = TimeSpan.FromSeconds(Math.Max(1, config.WindowSeconds));
@@ -193,12 +219,13 @@ public sealed partial class TvMazeClient : IDisposable
             HttpResponseMessage response;
             try
             {
-                response = await _http.GetAsync(path, ct).ConfigureAwait(false);
+                using var request = createRequest();
+                response = await _http.SendAsync(request, ct).ConfigureAwait(false);
             }
             catch (HttpRequestException ex) when (attempt < maxRetries)
             {
                 var delay = Backoff(attempt, null);
-                _logger.LogWarning(ex, "TVmaze request {Path} failed, retrying in {Delay}", path, delay);
+                _logger.LogWarning(ex, "TVmaze request {Path} failed, retrying in {Delay}", label, delay);
                 await Task.Delay(delay, _time, ct).ConfigureAwait(false);
                 continue;
             }
@@ -206,23 +233,12 @@ public sealed partial class TvMazeClient : IDisposable
             using (response)
             {
                 var status = response.StatusCode;
-                if (status == HttpStatusCode.NotFound)
-                {
-                    return null;
-                }
-
-                if (status is HttpStatusCode.MovedPermanently or HttpStatusCode.Found
-                    or HttpStatusCode.TemporaryRedirect or HttpStatusCode.PermanentRedirect)
-                {
-                    return response.Headers.Location?.ToString() ?? string.Empty;
-                }
-
                 if (status == HttpStatusCode.TooManyRequests || (int)status >= 500)
                 {
                     if (attempt >= maxRetries)
                     {
                         throw new HttpRequestException(
-                            $"TVmaze returned {(int)status} for {path} after {attempt + 1} attempts", null, status);
+                            $"TVmaze returned {(int)status} for {label} after {attempt + 1} attempts", null, status);
                     }
 
                     var delay = Backoff(attempt, response.Headers.RetryAfter);
@@ -230,7 +246,7 @@ public sealed partial class TvMazeClient : IDisposable
                     {
                         // Back off globally: every queued request waits, not just this one.
                         _limiter.Pause(delay);
-                        _logger.LogInformation("TVmaze rate limit hit (429) on {Path}; pausing {Delay}", path, delay);
+                        _logger.LogInformation("TVmaze rate limit hit (429) on {Path}; pausing {Delay}", label, delay);
                     }
                     else
                     {
@@ -240,8 +256,8 @@ public sealed partial class TvMazeClient : IDisposable
                     continue;
                 }
 
-                response.EnsureSuccessStatusCode();
-                return await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
+                return new SendResult(status, body, response.Headers.Location);
             }
         }
     }
@@ -265,6 +281,8 @@ public sealed partial class TvMazeClient : IDisposable
 
     [GeneratedRegex(@"/shows/(\d+)")]
     private static partial Regex ShowIdRegex();
+
+    private readonly record struct SendResult(HttpStatusCode Status, string Body, Uri? Location);
 
     private sealed class CacheEntry(Func<Task<string?>> factory, DateTimeOffset expires)
     {

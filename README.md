@@ -14,7 +14,20 @@ A metadata plugin for [Jellyfin](https://jellyfin.org) that gets series, season 
 - **Seasons:** name, overview, dates and poster.
 - **Episodes:** title, overview, air date, runtime, rating and still image. Specials (season 0) are matched in airing order, and daily shows can be matched by date.
 - **Images:** posters, banners, backgrounds and logos.
-- **Links** back to TVmaze on every item.
+- **Links** back to TVmaze on every item, including people.
+- **Optional: mark watched episodes on TVmaze.** Link a Jellyfin user to a TVmaze account, and episodes you finish or mark as played are marked as watched on your TVmaze profile.
+
+## Mark watched episodes on TVmaze (optional)
+
+Metadata never needs an account. Linking an account is only for marking watched episodes on TVmaze, and writing to TVmaze requires TVmaze premium.
+
+1. Go to **Dashboard → Plugins → TVmaze API**.
+2. Under **TVmaze account**, choose the Jellyfin user, then fill in your TVmaze username and API key (found on your [TVmaze dashboard](https://www.tvmaze.com/dashboard)).
+3. Click **Test login** to check the login and your premium level.
+4. Tick **Mark watched episodes on TVmaze**, then click **Save**.
+5. To send the episodes you have already watched, run **Sync watched episodes to TVmaze** under **Dashboard → Scheduled Tasks**.
+
+Each Jellyfin user has their own TVmaze account. Episodes are sent in batches a few seconds after the last one, so marking a whole season played is a single call. Un-marking an episode in Jellyfin does not un-mark it on TVmaze.
 
 ## How the API rules are followed
 

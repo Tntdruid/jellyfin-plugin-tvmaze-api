@@ -131,15 +131,8 @@ public class TvMazeEpisodeImageProvider : IRemoteImageProvider
             return [];
         }
 
-        var info = new EpisodeInfo
-        {
-            IndexNumber = episode.IndexNumber,
-            ParentIndexNumber = episode.ParentIndexNumber,
-            PremiereDate = episode.PremiereDate,
-            ProviderIds = episode.ProviderIds,
-            SeriesProviderIds = episode.Series.ProviderIds,
-        };
-        var found = await TvMazeEpisodeProvider.FindEpisodeAsync(_client, info, cancellationToken).ConfigureAwait(false);
+        var found = await TvMazeEpisodeProvider.FindEpisodeAsync(_client, TvMazeEpisodeProvider.ToEpisodeInfo(episode), cancellationToken)
+            .ConfigureAwait(false);
         return TvMazeSeasonImageProvider.ToPrimary(found?.Image);
     }
 

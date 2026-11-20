@@ -98,6 +98,15 @@ public class TvMazeEpisodeProvider : IRemoteMetadataProvider<Episode, EpisodeInf
         return MatchEpisode(episodes, info.ParentIndexNumber, info.IndexNumber, info.PremiereDate);
     }
 
+    internal static EpisodeInfo ToEpisodeInfo(Episode episode) => new()
+    {
+        IndexNumber = episode.IndexNumber,
+        ParentIndexNumber = episode.ParentIndexNumber,
+        PremiereDate = episode.PremiereDate,
+        ProviderIds = episode.ProviderIds,
+        SeriesProviderIds = episode.Series?.ProviderIds ?? new Dictionary<string, string>(),
+    };
+
     internal static TvMazeEpisode? MatchEpisode(IReadOnlyList<TvMazeEpisode> episodes, int? season, int? number, DateTime? airDate)
     {
         if (number is not null)
