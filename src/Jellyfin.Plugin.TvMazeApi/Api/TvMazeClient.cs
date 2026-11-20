@@ -83,6 +83,13 @@ public sealed partial class TvMazeClient : IDisposable
     public async Task<IReadOnlyList<TvMazeCastMember>> GetCastAsync(int showId, CancellationToken ct)
         => await GetJsonAsync<TvMazeCastMember[]>($"shows/{showId}/cast", ct).ConfigureAwait(false) ?? [];
 
+    public async Task<IReadOnlyList<TvMazeCrewMember>> GetCrewAsync(int showId, CancellationToken ct)
+        => await GetJsonAsync<TvMazeCrewMember[]>($"shows/{showId}/crew", ct).ConfigureAwait(false) ?? [];
+
+    /// <summary>A season's episodes with guest cast and guest crew — one call covers every episode in the season.</summary>
+    public async Task<IReadOnlyList<TvMazeEpisode>> GetSeasonEpisodesWithPeopleAsync(int seasonId, CancellationToken ct)
+        => await GetJsonAsync<TvMazeEpisode[]>($"seasons/{seasonId}/episodes?embed[]=guestcast&embed[]=guestcrew", ct).ConfigureAwait(false) ?? [];
+
     public async Task<IReadOnlyList<TvMazeShowImage>> GetShowImagesAsync(int showId, CancellationToken ct)
         => await GetJsonAsync<TvMazeShowImage[]>($"shows/{showId}/images", ct).ConfigureAwait(false) ?? [];
 

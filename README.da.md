@@ -10,9 +10,9 @@ Metadata-plugin til [Jellyfin](https://jellyfin.org), der henter serie-, sæson-
 
 ## Funktioner
 
-- **Serier:** titel, beskrivelse, genrer, rating, premiere/slutdato, status, sendetid/-dage, netværk/streamingtjeneste, skuespillere og eksterne id'er (TheTVDB, IMDb, TVRage).
+- **Serier:** titel, beskrivelse, genrer, rating, premiere/slutdato, status, sendetid/-dage, netværk/streamingtjeneste, skuespillere, skabere, producere og eksterne id'er (TheTVDB, IMDb, TVRage).
 - **Sæsoner:** navn, beskrivelse, datoer og plakat.
-- **Episoder:** titel, beskrivelse, sendedato, spilletid, rating og stillbillede. Specials (sæson 0) matches i sendefølge, og daglige shows kan matches på dato.
+- **Episoder:** titel, beskrivelse, sendedato, spilletid, rating, stillbillede, gæstestjerner, instruktører og manuskriptforfattere. Specials (sæson 0) matches i sendefølge, og daglige shows kan matches på dato.
 - **Billeder:** plakater, bannere, baggrunde og logoer.
 - **Links** tilbage til TVmaze på hvert element, også personer.
 - **Valgfrit: markér sete episoder på TVmaze.** Knyt en Jellyfin-bruger til en TVmaze-konto, så episoder, du ser færdig eller markerer som set, bliver markeret som set på din TVmaze-profil.
@@ -41,7 +41,14 @@ Hver Jellyfin-bruger har sin egen TVmaze-konto. Episoderne sendes samlet et par 
 | Angiv en User-Agent | `Jellyfin-Plugin-TvMazeApi/<version>` |
 | CC BY-SA 4.0-kreditering | Hvert element linker til TVmaze, og indstillingssiden krediterer TVmaze. |
 
-Pluginet bruger desuden få kald: episoder matches mod seriens samlede episodeliste (**ét** kald pr. serie), ikke ét kald pr. episode. En typisk serie koster derfor 4–6 kald i alt.
+Pluginet bruger desuden få kald: episoder matches mod seriens samlede episodeliste (**ét** kald pr. serie), ikke ét kald pr. episode. Gæstestjerner, instruktører og manuskriptforfattere hentes med **ét** kald pr. sæson. En typisk serie koster derfor omkring 6 kald plus ét pr. sæson.
+
+## Medvirkende
+
+Jellyfin tager listen over personer fra den **første** metadata-udbyder i bibliotekets indstillinger, der returnerer nogen. Står TVmaze API øverst, erstatter dens rolleliste en længere liste fra en anden udbyder. Personer, der så ikke længere er knyttet til noget, fjernes senere af Jellyfins oprydning ("Deleting dead Person" i loggen).
+
+- Vil du have personer fra TheMovieDb, så sæt **TVmaze API under TheMovieDb**. TVmaze udfylder så kun det, der mangler, og tilføjer stadig TVmaze-id'er til de personer, der allerede er der.
+- Eller slå **Provide cast and crew** fra i pluginets indstillinger.
 
 ## Installation
 

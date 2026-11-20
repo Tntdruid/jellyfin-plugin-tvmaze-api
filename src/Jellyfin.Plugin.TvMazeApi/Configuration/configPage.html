@@ -9,6 +9,19 @@
     <div data-role="content">
         <div class="content-primary">
             <form id="TvMazeApiConfigForm">
+                <h2 class="sectionTitle">Metadata</h2>
+                <div class="checkboxContainer checkboxContainer-withDescription">
+                    <label>
+                        <input is="emby-checkbox" type="checkbox" id="IncludePeople" />
+                        <span>Provide cast and crew</span>
+                    </label>
+                    <div class="fieldDescription checkboxFieldDescription">
+                        Cast, creators and producers for series; guest stars, directors and writers for episodes.
+                        Jellyfin takes people from the first metadata provider that has any. Turn this off,
+                        or put TVmaze API below TheMovieDb in your library settings, if you want people from another provider.
+                    </div>
+                </div>
+
                 <h2 class="sectionTitle">Rate limit</h2>
                 <div class="inputContainer">
                     <input is="emby-input" type="number" id="MaxRequestsPerWindow" min="1" max="20" label="Max calls per window" />
@@ -98,6 +111,7 @@
                 Promise.all([ApiClient.getPluginConfiguration(pluginId), ApiClient.getUsers()]).then(function (r) {
                     var config = r[0], users = r[1];
                     fields.forEach(function (f) { page.querySelector('#' + f).value = config[f]; });
+                    page.querySelector('#IncludePeople').checked = config.IncludePeople !== false;
                     accounts = {};
                     (config.Users || []).forEach(function (a) { accounts[normalizeId(a.UserId)] = a; });
                     userSelect.innerHTML = users.map(function (u) {
@@ -135,6 +149,7 @@
                 Dashboard.showLoadingMsg();
                 ApiClient.getPluginConfiguration(pluginId).then(function (config) {
                     fields.forEach(function (f) { config[f] = parseInt(page.querySelector('#' + f).value, 10); });
+                    config.IncludePeople = page.querySelector('#IncludePeople').checked;
                     config.Users = Object.keys(accounts).map(function (k) { return accounts[k]; })
                         .filter(function (a) { return a.Username || a.ApiKey || a.ScrobbleEnabled; });
                     ApiClient.updatePluginConfiguration(pluginId, config).then(Dashboard.processPluginConfigurationUpdateResult);

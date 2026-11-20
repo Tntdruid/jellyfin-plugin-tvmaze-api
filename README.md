@@ -10,9 +10,9 @@ A metadata plugin for [Jellyfin](https://jellyfin.org) that gets series, season 
 
 ## Features
 
-- **Series:** title, overview, genres, rating, premiere and end dates, status, air time and air days, network or streaming service, cast, and external IDs (TheTVDB, IMDb, TVRage).
+- **Series:** title, overview, genres, rating, premiere and end dates, status, air time and air days, network or streaming service, cast, creators, producers, and external IDs (TheTVDB, IMDb, TVRage).
 - **Seasons:** name, overview, dates and poster.
-- **Episodes:** title, overview, air date, runtime, rating and still image. Specials (season 0) are matched in airing order, and daily shows can be matched by date.
+- **Episodes:** title, overview, air date, runtime, rating, still image, guest stars, directors and writers. Specials (season 0) are matched in airing order, and daily shows can be matched by date.
 - **Images:** posters, banners, backgrounds and logos.
 - **Links** back to TVmaze on every item, including people.
 - **Optional: mark watched episodes on TVmaze.** Link a Jellyfin user to a TVmaze account, and episodes you finish or mark as played are marked as watched on your TVmaze profile.
@@ -41,7 +41,14 @@ Each Jellyfin user has their own TVmaze account. Episodes are sent in batches a 
 | Send a User-Agent | `Jellyfin-Plugin-TvMazeApi/<version>` |
 | CC BY-SA 4.0 attribution | Every item links to TVmaze, and the settings page credits TVmaze. |
 
-The plugin also makes few calls. Episodes are matched against the series' full episode list, which is **one** call per series, not one call per episode. A typical series costs 4–6 calls in total.
+The plugin also makes few calls. Episodes are matched against the series' full episode list, which is **one** call per series, not one call per episode. Guest stars, directors and writers come from **one** call per season. A typical series costs about 6 calls plus one per season.
+
+## Cast and crew
+
+Jellyfin takes the list of people from the **first** metadata provider in your library settings that returns any. If TVmaze API is at the top, its cast replaces a longer cast from another provider, and people who are no longer linked to anything are later removed by Jellyfin's cleanup ("Deleting dead Person" in the log).
+
+- If you want people from TheMovieDb, put **TVmaze API below TheMovieDb**. TVmaze then only fills in what is missing, and still adds TVmaze IDs to people who are already there.
+- Or turn off **Provide cast and crew** in the plugin settings.
 
 ## Installation
 

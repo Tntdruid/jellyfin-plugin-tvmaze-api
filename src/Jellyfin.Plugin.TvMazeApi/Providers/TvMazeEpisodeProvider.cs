@@ -1,3 +1,4 @@
+using Jellyfin.Data.Enums;
 using Jellyfin.Plugin.TvMazeApi.Api;
 using MediaBrowser.Controller.Entities.TV;
 using MediaBrowser.Controller.Providers;
@@ -67,7 +68,52 @@ public class TvMazeEpisodeProvider : IRemoteMetadataProvider<Episode, EpisodeInf
 
         result.Item = item;
         result.HasMetadata = true;
+
+        if (TvMazePeople.Enabled)
+        {
+            var withPeople = await GetEpisodeWithPeopleAsync(_client, info.SeriesProviderIds, episode, cancellationToken).ConfigureAwait(false);
+            foreach (var person in TvMazePeople.FromEpisode(withPeople ?? episode))
+            {
+                result.AddPerson(person);
+            }
+        }
+
         return result;
+    }
+
+    /// <summary>
+    /// Gets the episode with guest cast and crew from its season's episode list,
+    /// so a whole season costs one API call instead of one per episode.
+    /// </summary>
+    internal static async Task<TvMazeEpisode?> GetEpisodeWithPeopleAsync(
+        TvMazeClient client,
+        IReadOnlyDictionary<string, string>? seriesProviderIds,
+        TvMazeEpisode episode,
+        CancellationToken ct)
+    {
+        try
+        {
+            var showId = await TvMazeHelpers.ResolveShowIdAsync(client, seriesProviderIds, null, null, ct).ConfigureAwait(false);
+            if (showId is null)
+            {
+                return null;
+            }
+
+            var seasons = await client.GetSeasonsAsync(showId.Value, ct).ConfigureAwait(false);
+            var season = seasons.FirstOrDefault(s => s.Number == episode.Season);
+            if (season is null)
+            {
+                return null;
+            }
+
+            var episodes = await client.GetSeasonEpisodesWithPeopleAsync(season.Id, ct).ConfigureAwait(false);
+            return episodes.FirstOrDefault(e => e.Id == episode.Id);
+        }
+        catch (HttpRequestException)
+        {
+            // People are extra; never fail the episode metadata because of them.
+            return null;
+        }
     }
 
     public async Task<HttpResponseMessage> GetImageResponse(string url, CancellationToken cancellationToken)

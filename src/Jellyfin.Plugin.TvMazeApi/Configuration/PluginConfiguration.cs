@@ -15,6 +15,12 @@ public class PluginConfiguration : BasePluginConfiguration
     /// <summary>Retries after HTTP 429 or transient errors before giving up.</summary>
     public int MaxRetries { get; set; } = 5;
 
+    /// <summary>
+    /// Provide cast, crew, guest stars, directors and writers. Jellyfin takes people from the first
+    /// metadata provider that returns any, so turn this off if another provider should supply them.
+    /// </summary>
+    public bool IncludePeople { get; set; } = true;
+
     /// <summary>TVmaze accounts linked to Jellyfin users, for marking watched episodes.</summary>
     public TvMazeUserConfig[] Users { get; set; } = [];
 

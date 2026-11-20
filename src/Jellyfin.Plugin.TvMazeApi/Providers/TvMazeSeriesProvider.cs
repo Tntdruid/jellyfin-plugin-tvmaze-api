@@ -57,22 +57,14 @@ public class TvMazeSeriesProvider : IRemoteMetadataProvider<Series, SeriesInfo>
         result.Item = MapSeries(show);
         result.HasMetadata = true;
 
-        foreach (var member in await _client.GetCastAsync(show.Id, cancellationToken).ConfigureAwait(false))
+        if (TvMazePeople.Enabled)
         {
-            if (string.IsNullOrWhiteSpace(member.Person?.Name))
+            var cast = await _client.GetCastAsync(show.Id, cancellationToken).ConfigureAwait(false);
+            var crew = await _client.GetCrewAsync(show.Id, cancellationToken).ConfigureAwait(false);
+            foreach (var person in TvMazePeople.FromCast(cast, PersonKind.Actor).Concat(TvMazePeople.FromCrew(crew)))
             {
-                continue;
+                result.AddPerson(person);
             }
-
-            var person = new PersonInfo
-            {
-                Name = member.Person.Name.Trim(),
-                Role = member.Character?.Name,
-                Type = PersonKind.Actor,
-                ImageUrl = member.Person.Image?.Original,
-            };
-            person.SetProviderId(TvMazeHelpers.ProviderKey, TvMazeHelpers.ToId(member.Person.Id));
-            result.AddPerson(person);
         }
 
         return result;

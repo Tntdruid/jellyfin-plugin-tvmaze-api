@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.2.0
+
+- Series now get creators and producers as well as the main cast.
+- Episodes now get guest stars, directors and writers. One call per season covers every episode in it.
+- New "Provide cast and crew" setting (on by default). Turn it off if another provider should supply people.
+
 ## 1.1.0
 
 - Optional TVmaze account per Jellyfin user: episodes you finish or mark as played are marked as watched on TVmaze. Off by default; turn it on with the "Mark watched episodes on TVmaze (requires TVmaze premium)" checkbox.

@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Jellyfin.Plugin.TvMazeApi.Api;
 
 #pragma warning disable CS1591
@@ -96,6 +98,27 @@ public sealed class TvMazeEpisode
     public TvMazeRating? Rating { get; set; }
     public TvMazeImage? Image { get; set; }
     public string? Summary { get; set; }
+
+    [JsonPropertyName("_embedded")]
+    public TvMazeEpisodeEmbedded? Embedded { get; set; }
+}
+
+public sealed class TvMazeEpisodeEmbedded
+{
+    public TvMazeCastMember[] Guestcast { get; set; } = [];
+    public TvMazeGuestCrewMember[] Guestcrew { get; set; } = [];
+}
+
+public sealed class TvMazeCrewMember
+{
+    public string? Type { get; set; }
+    public TvMazePerson? Person { get; set; }
+}
+
+public sealed class TvMazeGuestCrewMember
+{
+    public string? GuestCrewType { get; set; }
+    public TvMazePerson? Person { get; set; }
 }
 
 public sealed class TvMazeCastMember
