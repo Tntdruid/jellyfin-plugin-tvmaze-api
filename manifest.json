@@ -9,6 +9,14 @@
     "imageUrl": "https://raw.githubusercontent.com/Tntdruid/jellyfin-plugin-tvmaze-api/main/assets/banner.png",
     "versions": [
       {
+        "version": "1.2.1.0",
+        "changelog": "- Fixed \"Cannot fetch image … Http status code: Found\". The TVmaze image CDN sometimes redirects https to http, which .NET won't follow. Images are now retried over https and only then follow the redirect, on the same host only.\n- Person photos now come from a TVmaze image provider that uses this download, instead of bare image URLs that Jellyfin fetched on its own.",
+        "targetAbi": "12.2.0.0",
+        "sourceUrl": "https://github.com/Tntdruid/jellyfin-plugin-tvmaze-api/releases/download/v1.2.1/tvmaze-api_1.2.1.0.zip",
+        "checksum": "dbd73ad28550727c2d4f275d12159565",
+        "timestamp": "2026-11-22T07:18:42Z"
+      },
+      {
         "version": "1.2.0.0",
         "changelog": "- Series now get creators and producers as well as the main cast.\n- Episodes now get guest stars, directors and writers. One call per season covers every episode in it.\n- New \"Provide cast and crew\" setting (on by default). Turn it off if another provider should supply people.",
         "targetAbi": "12.2.0.0",
