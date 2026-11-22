@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.1
+
+- Fixed "Cannot fetch image … Http status code: Found". The TVmaze image CDN sometimes redirects https to http, which .NET won't follow. Images are now retried over https and only then follow the redirect, on the same host only.
+- Person photos now come from a TVmaze image provider that uses this download, instead of bare image URLs that Jellyfin fetched on its own.
+
 ## 1.2.0
 
 - Series now get creators and producers as well as the main cast.

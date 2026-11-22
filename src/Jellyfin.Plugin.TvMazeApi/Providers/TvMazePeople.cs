@@ -97,12 +97,13 @@ internal static class TvMazePeople
             return null;
         }
 
+        // No ImageUrl: Jellyfin would download it with its own HTTP client, which fails on the
+        // CDN's occasional https-to-http redirect. TvMazePersonImageProvider supplies photos instead.
         var person = new PersonInfo
         {
             Name = source.Name.Trim(),
             Role = role,
             Type = kind,
-            ImageUrl = source.Image?.Original,
         };
         person.SetProviderId(TvMazeHelpers.ProviderKey, TvMazeHelpers.ToId(source.Id));
         return person;

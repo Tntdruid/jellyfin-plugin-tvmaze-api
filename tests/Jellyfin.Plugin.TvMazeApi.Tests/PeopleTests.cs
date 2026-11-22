@@ -56,7 +56,10 @@ public class PeopleTests
         var people = TvMazePeople.FromEpisode(episode).ToList();
 
         Assert.Equal(3, people.Count);
-        Assert.Equal((PersonKind.GuestStar, "Norrie", "p.jpg"), (people[0].Type, people[0].Role, people[0].ImageUrl));
+        Assert.Equal((PersonKind.GuestStar, "Norrie"), (people[0].Type, people[0].Role));
+
+        // Regression: bare image URLs failed in Jellyfin when the CDN redirected https to http.
+        Assert.All(people, p => Assert.Null(p.ImageUrl));
         Assert.Equal(PersonKind.Writer, people[1].Type);
         Assert.Equal(PersonKind.Director, people[2].Type);
         Assert.Equal("7", people[2].GetProviderId(MetadataProvider.TvMaze));

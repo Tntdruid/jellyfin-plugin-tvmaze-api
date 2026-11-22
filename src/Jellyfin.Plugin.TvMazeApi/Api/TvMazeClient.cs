@@ -102,8 +102,55 @@ public sealed partial class TvMazeClient : IDisposable
     }
 
     /// <summary>Downloads an image from the TVmaze CDN (not the API, so not rate limited).</summary>
-    public Task<HttpResponseMessage> GetImageResponseAsync(string url, CancellationToken ct)
-        => _http.GetAsync(new Uri(url, UriKind.Absolute), HttpCompletionOption.ResponseHeadersRead, ct);
+    /// <remarks>
+    /// The CDN sometimes answers an uncached image with a 302 from https to the same http URL.
+    /// .NET never follows an https-to-http redirect, so retry the https URL first (it is usually
+    /// cached a moment later) and only then follow the redirect, and only on the same host.
+    /// </remarks>
+    public async Task<HttpResponseMessage> GetImageResponseAsync(string url, CancellationToken ct)
+    {
+        var uri = new Uri(url, UriKind.Absolute);
+        for (int attempt = 0; ; attempt++)
+        {
+            var response = await _http.GetAsync(uri, HttpCompletionOption.ResponseHeadersRead, ct).ConfigureAwait(false);
+            if (!IsRedirect(response.StatusCode))
+            {
+                return response;
+            }
+
+            var location = response.Headers.Location;
+            response.Dispose();
+
+            if (attempt < ImageRetries)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(attempt + 1), _time, ct).ConfigureAwait(false);
+                continue;
+            }
+
+            if (location is null)
+            {
+                throw new HttpRequestException($"Image {url} redirected without a location", null, HttpStatusCode.Found);
+            }
+
+            var target = location.IsAbsoluteUri ? location : new Uri(uri, location);
+            if (!string.Equals(target.Host, uri.Host, StringComparison.OrdinalIgnoreCase))
+            {
+                throw new HttpRequestException($"Image {url} redirected to another host ({target.Host})", null, HttpStatusCode.Found);
+            }
+
+            return await _http.GetAsync(target, HttpCompletionOption.ResponseHeadersRead, ct).ConfigureAwait(false);
+        }
+    }
+
+    /// <summary>How many times to retry the https image URL after a redirect before following it.</summary>
+    internal const int ImageRetries = 2;
+
+    private static bool IsRedirect(HttpStatusCode status)
+        => status is HttpStatusCode.MovedPermanently or HttpStatusCode.Found or HttpStatusCode.SeeOther
+            or HttpStatusCode.TemporaryRedirect or HttpStatusCode.PermanentRedirect;
+
+    public Task<TvMazePerson?> GetPersonAsync(int personId, CancellationToken ct)
+        => GetJsonAsync<TvMazePerson>($"people/{personId}", ct);
 
     public void Dispose()
     {

@@ -109,6 +109,40 @@ public class TvMazeSeasonImageProvider : IRemoteImageProvider
             : [new RemoteImageInfo { ProviderName = Plugin.ProviderName, Type = ImageType.Primary, Url = image.Original, ThumbnailUrl = image.Medium }];
 }
 
+/// <summary>
+/// Person photos. Downloaded through the plugin (with redirect handling) instead of handing
+/// Jellyfin a bare image URL, which fails when the CDN redirects https to http.
+/// </summary>
+public class TvMazePersonImageProvider : IRemoteImageProvider
+{
+    private readonly TvMazeClient _client;
+
+    public TvMazePersonImageProvider(TvMazeClient client)
+    {
+        _client = client;
+    }
+
+    public string Name => Plugin.ProviderName;
+
+    public bool Supports(BaseItem item) => item is Person;
+
+    public IEnumerable<ImageType> GetSupportedImages(BaseItem item) => [ImageType.Primary];
+
+    public async Task<IEnumerable<RemoteImageInfo>> GetImages(BaseItem item, CancellationToken cancellationToken)
+    {
+        if (TvMazeHelpers.ParseInt(item.GetProviderId(TvMazeHelpers.ProviderKey)) is not { } personId)
+        {
+            return [];
+        }
+
+        var person = await _client.GetPersonAsync(personId, cancellationToken).ConfigureAwait(false);
+        return TvMazeSeasonImageProvider.ToPrimary(person?.Image);
+    }
+
+    public Task<HttpResponseMessage> GetImageResponse(string url, CancellationToken cancellationToken)
+        => _client.GetImageResponseAsync(url, cancellationToken);
+}
+
 public class TvMazeEpisodeImageProvider : IRemoteImageProvider
 {
     private readonly TvMazeClient _client;
